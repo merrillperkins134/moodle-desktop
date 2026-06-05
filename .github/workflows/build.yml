@@ -30,7 +30,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nextcloud-desktop-linux-x64
+          name: nextcloud-vector-view-linux-x64
           path: |
             dist-build/*.deb
             dist-build/*.AppImage
@@ -41,9 +41,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v1.0.0
-          name: Nextcloud Desktop v1.0.0
+          name: Nextcloud Vector View v1.0.0
           body: |
-            ## Nextcloud Desktop v1.0.0
+            ## Nextcloud Vector View v1.0.0
 
             Native desktop wrapper for your self-hosted Nextcloud Hub on Zorin OS 17 / Ubuntu 22.04 (x86_64).
 
@@ -51,13 +51,13 @@ jobs:
 
             **`.deb` (recommended for Zorin/Ubuntu):**
             ```bash
-            sudo apt install ./nextcloud-desktop_1.0.0_amd64.deb
+            sudo apt install ./nextcloud-vector-view_1.0.0_amd64.deb
             ```
 
             **AppImage (no install needed):**
             ```bash
-            chmod +x "Nextcloud Desktop-1.0.0-x86_64.AppImage"
-            ./"Nextcloud Desktop-1.0.0-x86_64.AppImage"
+            chmod +x "Nextcloud Vector View-1.0.0-x86_64.AppImage"
+            ./"Nextcloud Vector View-1.0.0-x86_64.AppImage"
             ```
 
             After launching, click the ⚙ Settings button in the sidebar and enter your Nextcloud server URL.

@@ -1,4 +1,4 @@
-# Nextcloud Desktop
+# Nextcloud Vector View
 
 A lean, native desktop wrapper for your **self-hosted Nextcloud Hub** — use
 Files, Mail, Calendar, Talk, Contacts, Deck and the Dashboard in a dedicated
@@ -67,7 +67,7 @@ can change the server **without rebuilding**.
 **Config file location** (created automatically the first time you launch):
 
 ```
-~/.config/nextcloud-desktop/config.json
+~/.config/nextcloud-vector-view/config.json
 ```
 
 Example:
@@ -128,8 +128,8 @@ step. To regenerate them manually: `npm run generate-icons`.)
 Artifacts land in:
 
 ```
-dist-build/nextcloud-desktop_1.0.0_amd64.deb
-dist-build/Nextcloud Desktop-1.0.0-x86_64.AppImage
+dist-build/nextcloud-vector-view_1.0.0_amd64.deb
+dist-build/Nextcloud Vector View-1.0.0-x86_64.AppImage
 ```
 
 ---
@@ -137,26 +137,26 @@ dist-build/Nextcloud Desktop-1.0.0-x86_64.AppImage
 ## Install the .deb on Zorin
 
 ```bash
-sudo apt install ./dist-build/nextcloud-desktop_1.0.0_amd64.deb
+sudo apt install ./dist-build/nextcloud-vector-view_1.0.0_amd64.deb
 ```
 
 (or double-click it in Files to open it with the Software installer.)
 
-After installing, **Nextcloud Desktop** appears in the Zorin application menu
+After installing, **Nextcloud Vector View** appears in the Zorin application menu
 under **Internet / Network**. Launch it, open Settings, set your server URL, and
 log in.
 
 To run the AppImage instead (no install needed):
 
 ```bash
-chmod +x "dist-build/Nextcloud Desktop-1.0.0-x86_64.AppImage"
-"./dist-build/Nextcloud Desktop-1.0.0-x86_64.AppImage"
+chmod +x "dist-build/Nextcloud Vector View-1.0.0-x86_64.AppImage"
+"./dist-build/Nextcloud Vector View-1.0.0-x86_64.AppImage"
 ```
 
 To uninstall the `.deb`:
 
 ```bash
-sudo apt remove nextcloud-desktop
+sudo apt remove nextcloud-vector-view
 ```
 
 ---

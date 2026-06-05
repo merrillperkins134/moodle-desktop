@@ -1,9 +1,9 @@
 {
-  "name": "nextcloud-desktop",
+  "name": "nextcloud-vector-view",
   "version": "1.0.0",
   "description": "A lean native desktop wrapper for a self-hosted Nextcloud Hub (Files, Mail, Calendar, Talk, Contacts, Dashboard).",
   "author": {
-    "name": "Nextcloud Desktop"
+    "name": "Nextcloud Vector View"
   },
   "homepage": "https://nextcloud.com",
   "license": "MIT",
@@ -20,8 +20,8 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.nextcloud.desktop.wrapper",
-    "productName": "Nextcloud Desktop",
+    "appId": "com.nextcloudvectorview.app",
+    "productName": "Nextcloud Vector View",
     "copyright": "Copyright © 2026",
     "files": [
       "src/**/*",
@@ -41,14 +41,14 @@
       "category": "Network",
       "synopsis": "Native desktop wrapper for your self-hosted Nextcloud Hub",
       "description": "Use Files, Mail, Calendar, Talk, Contacts and the Dashboard of your self-hosted Nextcloud server in a dedicated desktop window with a quick-jump sidebar, system tray and native notifications.",
-      "maintainer": "Nextcloud Desktop <noreply@example.com>",
+      "maintainer": "Nextcloud Vector View <noreply@example.com>",
       "desktop": {
-        "Name": "Nextcloud Desktop",
+        "Name": "Nextcloud Vector View",
         "GenericName": "Nextcloud Client",
         "Comment": "Access your self-hosted Nextcloud Hub",
         "Categories": "Network;Internet;Utility;",
-        "Keywords": "nextcloud;cloud;files;mail;calendar;talk;contacts;",
-        "StartupWMClass": "nextcloud-desktop"
+        "Keywords": "nextcloud;cloud;files;mail;calendar;talk;contacts;vector;",
+        "StartupWMClass": "Nextcloud Vector View"
       }
     },
     "deb": {

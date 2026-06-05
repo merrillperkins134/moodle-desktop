@@ -147,7 +147,7 @@ function createMainWindow() {
     ...bounds,
     minWidth: 800,
     minHeight: 600,
-    title: 'Nextcloud Desktop',
+    title: 'Nextcloud Vector View',
     backgroundColor: '#0b0c0f',
     icon: path.join(ASSETS_DIR, 'icon.png'),
     autoHideMenuBar: true,
@@ -257,7 +257,7 @@ function wireWebview(contents) {
 function createTray() {
   const trayIcon = nativeImage.createFromPath(path.join(ASSETS_DIR, 'tray.png'));
   tray = new Tray(trayIcon);
-  tray.setToolTip('Nextcloud Desktop');
+  tray.setToolTip('Nextcloud Vector View');
   rebuildTrayMenu();
 
   tray.on('click', () => toggleMainWindow());
@@ -316,7 +316,7 @@ function openSettingsWindow() {
     resizable: false,
     minimizable: false,
     maximizable: false,
-    title: 'Settings — Nextcloud Desktop',
+    title: 'Settings — Nextcloud Vector View',
     backgroundColor: '#1b1d22',
     autoHideMenuBar: true,
     icon: path.join(ASSETS_DIR, 'icon.png'),
@@ -366,7 +366,7 @@ function registerIpc() {
       }
     }
     if (tray) {
-      tray.setToolTip(n > 0 ? `Nextcloud Desktop — ${n} unread` : 'Nextcloud Desktop');
+      tray.setToolTip(n > 0 ? `Nextcloud Vector View — ${n} unread` : 'Nextcloud Vector View');
     }
     rebuildTrayMenu(n);
   });
