@@ -5,6 +5,7 @@
   "author": {
     "name": "Nextcloud Desktop"
   },
+  "homepage": "https://nextcloud.com",
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
