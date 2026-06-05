@@ -76,12 +76,22 @@ body {
   stroke-linejoin: round;
 }
 
-/* Some icons read better filled */
-.nav-btn[data-path="/apps/dashboard"] svg,
-.nav-btn[data-path="/apps/deck"] svg,
-.nav-btn[data-path="/apps/contacts"] svg {
-  fill: currentColor;
-  stroke: none;
+.nav-btn .nav-icon {
+  width: 22px;
+  height: 22px;
+  filter: brightness(0) invert(0.78);
+  transition: filter 0.15s ease;
+}
+
+.nav-btn:hover .nav-icon,
+.nav-btn.active .nav-icon {
+  filter: brightness(0) invert(1);
+}
+
+.nav-btn .nav-letter {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .nav-btn:hover {

@@ -11,8 +11,10 @@ const loading = document.getElementById('loading');
 const errorScreen = document.getElementById('error');
 const errorDetail = document.getElementById('error-detail');
 const errorUrl = document.getElementById('error-url');
-const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-path]'));
+const sidebarApps = document.getElementById('sidebar-apps');
 
+let navButtons = [];
+let currentNavKey = '';
 let serverUrl = 'https://cloud.example.com';
 const DEFAULT_PATH = '/apps/dashboard';
 
@@ -31,14 +33,17 @@ function hideOverlays() {
   errorScreen.hidden = true;
 }
 
+function stripTrailingSlash(p) {
+  return p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
+}
+
 function setActiveByPath(pathname) {
-  // Highlight the button whose target path matches the current location.
+  const norm = stripTrailingSlash(pathname);
   let matched = null;
   for (const btn of navButtons) {
-    const p = btn.getAttribute('data-path');
-    if (pathname === p || pathname.startsWith(p + '/') || pathname.startsWith(p)) {
-      // Prefer the longest matching path (e.g. /apps/files over /apps).
-      if (!matched || p.length > matched.getAttribute('data-path').length) {
+    const p = stripTrailingSlash(btn.getAttribute('data-path'));
+    if (norm === p || norm.startsWith(p + '/')) {
+      if (!matched || p.length > stripTrailingSlash(matched.getAttribute('data-path')).length) {
         matched = btn;
       }
     }
@@ -52,10 +57,55 @@ function navigateTo(pathname) {
   view.src = buildUrl(pathname);
 }
 
-// --- Sidebar wiring ---------------------------------------------------------
-navButtons.forEach((btn) => {
-  btn.addEventListener('click', () => navigateTo(btn.getAttribute('data-path')));
-});
+function navigateToAbsPath(absPath) {
+  hideOverlays();
+  showOverlay(loading);
+  view.src = new URL(absPath, serverUrl).href;
+}
+
+// --- Dynamic sidebar --------------------------------------------------------
+function buildNavButtons(apps) {
+  const key = apps.map((a) => a.id).join(',');
+  if (key === currentNavKey) return;
+  currentNavKey = key;
+
+  sidebarApps.innerHTML = '';
+  navButtons = [];
+
+  for (const app of apps) {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn';
+    btn.setAttribute('data-path', app.path);
+    btn.title = app.name;
+    btn.setAttribute('aria-label', app.name);
+
+    if (app.iconDataUri) {
+      const img = document.createElement('img');
+      img.className = 'nav-icon';
+      img.src = app.iconDataUri;
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      btn.appendChild(img);
+    } else {
+      const span = document.createElement('span');
+      span.className = 'nav-letter';
+      span.textContent = app.name.charAt(0).toUpperCase();
+      span.setAttribute('aria-hidden', 'true');
+      btn.appendChild(span);
+    }
+
+    btn.addEventListener('click', () => navigateToAbsPath(app.path));
+    sidebarApps.appendChild(btn);
+    navButtons.push(btn);
+  }
+
+  try {
+    const url = view.getURL();
+    if (url) setActiveByPath(new URL(url).pathname);
+  } catch (_) {
+    /* webview might not have a URL yet */
+  }
+}
 
 document.getElementById('btn-reload').addEventListener('click', () => view.reload());
 document.getElementById('btn-settings').addEventListener('click', () => window.api.openSettings());
@@ -109,11 +159,16 @@ view.addEventListener('did-fail-load', (e) => {
   showOverlay(errorScreen);
 });
 
-// Relay the unread badge from the injected webview preload to the main process.
+// Messages from the webview preload (badge count + navigation entries).
 view.addEventListener('ipc-message', (e) => {
   if (e.channel === 'badge') {
     const count = Array.isArray(e.args) ? e.args[0] : 0;
     window.api.setBadge(count);
+  } else if (e.channel === 'nav-apps') {
+    const apps = Array.isArray(e.args) ? e.args[0] : null;
+    if (Array.isArray(apps) && apps.length > 0) {
+      buildNavButtons(apps);
+    }
   }
 });
 
@@ -124,6 +179,9 @@ window.api.onConfigChanged((cfg) => {
   const changedHost = cfg.serverUrl !== serverUrl;
   serverUrl = cfg.serverUrl;
   if (changedHost) {
+    currentNavKey = '';
+    sidebarApps.innerHTML = '';
+    navButtons = [];
     navigateTo(DEFAULT_PATH);
   } else {
     view.reload();
