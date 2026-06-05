@@ -1,19 +1,22 @@
 #!/usr/bin/env node
 /*
- * Generates placeholder application icons with zero runtime dependencies.
+ * Installs the application icons used by electron-builder and at runtime.
  *
- * Produces:
- *   build/icon.png   512x512  (used by electron-builder for .deb / AppImage)
- *   assets/icon.png  512x512  (used as the runtime window icon)
- *   assets/tray.png  64x64    (used for the system tray icon)
+ * Source of truth: the brand masters in branding/
+ *   branding/icon.png   512x512  → build/icon.png + assets/icon.png
+ *   branding/tray.png   64x64     → assets/tray.png
  *
- * The image is a simple Nextcloud-blue square with a white cloud mark.
- * Replace these files with real branding whenever you like.
+ * If a master is missing, a simple Nextcloud-blue placeholder is generated so
+ * the build never fails for lack of an icon. Drop new artwork into branding/
+ * (same names/sizes) and rebuild to rebrand.
  */
 
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
+
+const root = path.resolve(__dirname, '..');
+const BRANDING_DIR = path.join(root, 'branding');
 
 // --- CRC32 (for PNG chunk checksums) ---------------------------------------
 const CRC_TABLE = (() => {
@@ -45,12 +48,9 @@ function chunk(type, data) {
   return Buffer.concat([lenBuf, typeBuf, data, crcBuf]);
 }
 
-// --- Drawing ----------------------------------------------------------------
+// --- Placeholder drawing (fallback only) ------------------------------------
 function drawIcon(size) {
   const s = size;
-  const px = (x, y) => ({ x: x / s, y: y / s }); // normalized helpers unused; keep explicit math below
-
-  // Work in a 512 design space and scale to the requested size.
   const scale = s / 512;
   const circles = [
     [256, 290, 95],
@@ -60,13 +60,7 @@ function drawIcon(size) {
     [300, 250, 55],
   ].map(([cx, cy, r]) => [cx * scale, cy * scale, r * scale]);
 
-  const bar = {
-    x0: 175 * scale,
-    x1: 340 * scale,
-    y0: 300 * scale,
-    y1: 360 * scale,
-  };
-
+  const bar = { x0: 175 * scale, x1: 340 * scale, y0: 300 * scale, y1: 360 * scale };
   const data = Buffer.alloc(s * s * 4);
 
   const inCloud = (x, y) => {
@@ -75,14 +69,11 @@ function drawIcon(size) {
       const dy = y - cy;
       if (dx * dx + dy * dy <= r * r) return true;
     }
-    if (x >= bar.x0 && x <= bar.x1 && y >= bar.y0 && y <= bar.y1) return true;
-    return false;
+    return x >= bar.x0 && x <= bar.x1 && y >= bar.y0 && y <= bar.y1;
   };
 
   for (let y = 0; y < s; y++) {
-    // Vertical gradient from #0082C9 (top) to #005A8C (bottom).
     const t = y / (s - 1);
-    const bgR = Math.round(0x00 + (0x00 - 0x00) * t);
     const bgG = Math.round(0x82 + (0x5a - 0x82) * t);
     const bgB = Math.round(0xc9 + (0x8c - 0xc9) * t);
     for (let x = 0; x < s; x++) {
@@ -93,7 +84,7 @@ function drawIcon(size) {
         data[i + 2] = 0xff;
         data[i + 3] = 0xff;
       } else {
-        data[i] = bgR;
+        data[i] = 0x00;
         data[i + 1] = bgG;
         data[i + 2] = bgB;
         data[i + 3] = 0xff;
@@ -105,7 +96,6 @@ function drawIcon(size) {
 
 function encodePng(size) {
   const rgba = drawIcon(size);
-  // Add filter byte (0 = none) at the start of each scanline.
   const stride = size * 4;
   const raw = Buffer.alloc((stride + 1) * size);
   for (let y = 0; y < size; y++) {
@@ -114,35 +104,42 @@ function encodePng(size) {
   }
 
   const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(size, 0);
   ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // color type RGBA
-  ihdr[10] = 0; // compression
-  ihdr[11] = 0; // filter
-  ihdr[12] = 0; // interlace
-
-  const idat = zlib.deflateSync(raw, { level: 9 });
-
+  ihdr[8] = 8;
+  ihdr[9] = 6;
   return Buffer.concat([
     sig,
     chunk('IHDR', ihdr),
-    chunk('IDAT', idat),
+    chunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
     chunk('IEND', Buffer.alloc(0)),
   ]);
 }
 
+// --- Install ----------------------------------------------------------------
 function writeFileEnsured(filePath, buf) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, buf);
-  console.log(`wrote ${path.relative(process.cwd(), filePath)} (${buf.length} bytes)`);
+  console.log(`wrote ${path.relative(root, filePath)} (${buf.length} bytes)`);
 }
 
-const root = path.resolve(__dirname, '..');
-writeFileEnsured(path.join(root, 'build', 'icon.png'), encodePng(512));
-writeFileEnsured(path.join(root, 'assets', 'icon.png'), encodePng(512));
-writeFileEnsured(path.join(root, 'assets', 'tray.png'), encodePng(64));
+// Use the brand master if present, otherwise fall back to a generated icon.
+function resolveIcon(masterName, size) {
+  const master = path.join(BRANDING_DIR, masterName);
+  if (fs.existsSync(master)) {
+    console.log(`using branding/${masterName}`);
+    return fs.readFileSync(master);
+  }
+  console.log(`branding/${masterName} not found — generating ${size}x${size} placeholder`);
+  return encodePng(size);
+}
 
-console.log('Icon generation complete.');
+const appIcon = resolveIcon('icon.png', 512);
+const trayIcon = resolveIcon('tray.png', 64);
+
+writeFileEnsured(path.join(root, 'build', 'icon.png'), appIcon);
+writeFileEnsured(path.join(root, 'assets', 'icon.png'), appIcon);
+writeFileEnsured(path.join(root, 'assets', 'tray.png'), trayIcon);
+
+console.log('Icon installation complete.');
