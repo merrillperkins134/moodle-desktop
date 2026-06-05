@@ -68,8 +68,6 @@ welcomeForm.addEventListener('submit', async (e) => {
 });
 
 // --- Wrapper controls -------------------------------------------------------
-document.getElementById('btn-reload').addEventListener('click', () => view.reload());
-document.getElementById('btn-settings').addEventListener('click', () => window.api.openSettings());
 document.getElementById('btn-error-settings').addEventListener('click', () => window.api.openSettings());
 document.getElementById('btn-retry').addEventListener('click', () => {
   showOverlay(loading);

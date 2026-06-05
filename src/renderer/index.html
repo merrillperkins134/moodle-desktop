@@ -11,23 +11,9 @@
   </head>
   <body>
     <div id="app">
-      <!-- Slim control rail. App navigation is provided by Nextcloud's own
-           ribbon inside the webview, so the wrapper only keeps its own
-           reload / settings controls here. -->
-      <nav id="sidebar" aria-label="App controls">
-        <div class="sidebar-top"></div>
-
-        <div class="sidebar-bottom">
-          <button id="btn-reload" class="nav-btn" title="Reload" aria-label="Reload">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
-          </button>
-          <button id="btn-settings" class="nav-btn" title="Settings" aria-label="Settings">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 12h2m14 0h2M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4"/></svg>
-          </button>
-        </div>
-      </nav>
-
-      <!-- Embedded Nextcloud Hub -->
+      <!-- Embedded Nextcloud Hub. App navigation is Nextcloud's own ribbon;
+           the wrapper adds no chrome of its own. Reload / Settings / Quit live
+           in the application menu (Alt) and the system-tray menu. -->
       <main id="content">
         <webview
           id="view"

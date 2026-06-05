@@ -25,66 +25,15 @@ body {
 }
 
 #app {
-  display: flex;
   height: 100vh;
   width: 100vw;
-}
-
-/* --- Sidebar --- */
-#sidebar {
-  width: 56px;
-  flex: 0 0 56px;
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px 0;
-  user-select: none;
-}
-
-.sidebar-top,
-.sidebar-bottom {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.nav-btn {
-  width: 42px;
-  height: 42px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--icon);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-btn svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.nav-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--icon-active);
 }
 
 /* --- Content / webview --- */
 #content {
   position: relative;
-  flex: 1 1 auto;
+  height: 100%;
+  width: 100%;
   background: var(--bg);
 }
 

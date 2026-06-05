@@ -47,6 +47,7 @@ if (!gotLock) {
 function bootstrap() {
   app.whenReady().then(() => {
     configureSession();
+    setupAppMenu();
     createMainWindow();
     createTray();
 
@@ -130,6 +131,51 @@ function configureSession() {
   ses.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
     return allowedPermissions.has(permission) && isOwnOrigin(requestingOrigin);
   });
+}
+
+// --- Application menu -------------------------------------------------------
+// The window has no visual chrome of its own (Nextcloud's ribbon handles app
+// navigation), so the wrapper's own actions live here. The menu bar is
+// auto-hidden; press Alt to reveal it, or use the accelerators / tray menu.
+function setupAppMenu() {
+  const reloadView = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('action:reload');
+    }
+  };
+
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { label: 'Settings…', accelerator: 'CmdOrCtrl+,', click: () => openSettingsWindow() },
+        { type: 'separator' },
+        {
+          label: 'Quit',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => {
+            isQuitting = true;
+            app.quit();
+          },
+        },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: reloadView },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+        { role: 'toggleDevTools' },
+      ],
+    },
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 function createMainWindow() {
