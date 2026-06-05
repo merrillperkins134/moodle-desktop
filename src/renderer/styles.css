@@ -1,0 +1,226 @@
+:root {
+  --bg: #0b0c0f;
+  --sidebar-bg: #16181d;
+  --sidebar-border: #24272e;
+  --accent: #0082c9;
+  --accent-soft: rgba(0, 130, 201, 0.18);
+  --icon: #c4c9d4;
+  --icon-active: #ffffff;
+  --text: #e7eaf0;
+  --muted: #9aa1ad;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", "Cantarell", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- Sidebar --- */
+#sidebar {
+  width: 56px;
+  flex: 0 0 56px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 0;
+  user-select: none;
+}
+
+.sidebar-top,
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--icon);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Some icons read better filled */
+.nav-btn[data-path="/apps/dashboard"] svg,
+.nav-btn[data-path="/apps/deck"] svg,
+.nav-btn[data-path="/apps/contacts"] svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--icon-active);
+}
+
+.nav-btn.active {
+  background: var(--accent-soft);
+  color: var(--icon-active);
+}
+
+.nav-btn.active::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+/* --- Content / webview --- */
+#content {
+  position: relative;
+  flex: 1 1 auto;
+  background: var(--bg);
+}
+
+#view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* --- Overlays (loading + error) --- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--bg);
+  z-index: 10;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.overlay p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.error-card {
+  max-width: 460px;
+  text-align: center;
+  padding: 32px;
+}
+
+.error-icon {
+  width: 56px;
+  height: 56px;
+  fill: none;
+  stroke: #e0b341;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 8px;
+}
+
+.error-card h1 {
+  font-size: 20px;
+  margin: 8px 0;
+}
+
+.error-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.error-url {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 13px;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.error-actions {
+  margin-top: 22px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* --- Buttons (shared with settings) --- */
+.btn {
+  border: 1px solid var(--sidebar-border);
+  background: #1e2128;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover {
+  background: #262a33;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: #0090df;
+}

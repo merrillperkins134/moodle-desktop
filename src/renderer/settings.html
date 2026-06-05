@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';"
+    />
+    <title>Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        background: #1b1d22;
+      }
+      .settings {
+        padding: 26px 28px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 18px;
+      }
+      label.field {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--sidebar-border);
+        background: #121419;
+        color: var(--text);
+        font-size: 14px;
+        margin-bottom: 18px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0 0 18px;
+        line-height: 1.5;
+      }
+      .hint code {
+        font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+        color: var(--accent);
+      }
+      .spacer {
+        flex: 1;
+      }
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+      .env-note {
+        background: rgba(0, 130, 201, 0.12);
+        border: 1px solid rgba(0, 130, 201, 0.3);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #bfe0f4;
+        margin-bottom: 16px;
+      }
+      .env-note[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings">
+      <h1>Settings</h1>
+
+      <div class="env-note" id="env-note" hidden>
+        The server URL is currently set by the <code>NEXTCLOUD_URL</code> environment
+        variable, which overrides this field until you unset it.
+      </div>
+
+      <label class="field" for="serverUrl">Nextcloud server URL</label>
+      <input type="text" id="serverUrl" placeholder="https://cloud.example.com" spellcheck="false" />
+
+      <label class="toggle">
+        <input type="checkbox" id="allowSelfSigned" />
+        Allow self-signed / untrusted TLS certificates
+      </label>
+      <p class="hint">
+        Only enable this if your server uses a self-signed certificate. Changes apply
+        on save. The config file lives at: <br /><code id="config-path"></code>
+      </p>
+
+      <div class="spacer"></div>
+
+      <div class="actions">
+        <button class="btn" id="btn-cancel">Cancel</button>
+        <button class="btn primary" id="btn-save">Save &amp; Reload</button>
+      </div>
+    </div>
+
+    <script src="settings.js"></script>
+  </body>
+</html>
