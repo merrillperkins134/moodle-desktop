@@ -247,13 +247,10 @@ function wireWebview(contents) {
     return { action: 'deny' };
   });
 
-  // Top-level navigations to an external host go to the system browser.
-  contents.on('will-navigate', (event, url) => {
-    if (!isInternalUrl(url)) {
-      event.preventDefault();
-      openExternal(url);
-    }
-  });
+  // Allow all top-level navigations inside the webview. SSO/OAuth flows
+  // (e.g. Authentik, Keycloak) redirect through external domains via HTTP
+  // 302s, which fire will-navigate. Blocking those breaks login. External
+  // links in Nextcloud's UI use target=_blank / window.open, handled above.
 }
 
 // --- Tray -------------------------------------------------------------------
