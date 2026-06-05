@@ -25,7 +25,7 @@ jobs:
         run: npm run generate-icons
 
       - name: Build .deb and AppImage
-        run: npm run dist
+        run: npx electron-builder --linux deb AppImage --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -37,6 +37,8 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v1.0.0
           name: Nextcloud Desktop v1.0.0
