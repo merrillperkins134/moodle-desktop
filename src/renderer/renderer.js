@@ -1,9 +1,11 @@
 'use strict';
 
 /*
- * Shell renderer: drives the quick-jump sidebar and the embedded <webview>,
- * handles loading / error overlays, and relays the unread badge to the main
- * process. No Node access here — everything goes through window.api.
+ * Shell renderer: drives the embedded <webview>, handles the loading / welcome /
+ * error overlays, and relays the unread badge to the main process. App
+ * navigation is provided by Nextcloud's own ribbon inside the webview — the
+ * wrapper deliberately does not draw its own app list. No Node access here:
+ * everything goes through window.api.
  */
 
 const view = document.getElementById('view');
@@ -11,10 +13,14 @@ const loading = document.getElementById('loading');
 const errorScreen = document.getElementById('error');
 const errorDetail = document.getElementById('error-detail');
 const errorUrl = document.getElementById('error-url');
-const sidebarApps = document.getElementById('sidebar-apps');
+const welcome = document.getElementById('welcome');
+const welcomeForm = document.getElementById('welcome-form');
+const welcomeUrl = document.getElementById('welcome-url');
+const welcomeSelfSigned = document.getElementById('welcome-selfsigned');
+const welcomeError = document.getElementById('welcome-error');
 
-let navButtons = [];
-let currentNavKey = '';
+const overlays = [loading, errorScreen, welcome];
+
 let serverUrl = 'https://cloud.example.com';
 const DEFAULT_PATH = '/apps/dashboard';
 
@@ -23,32 +29,15 @@ function buildUrl(pathname) {
 }
 
 function showOverlay(el) {
-  [loading, errorScreen].forEach((o) => {
+  overlays.forEach((o) => {
     o.hidden = o !== el;
   });
 }
 
 function hideOverlays() {
-  loading.hidden = true;
-  errorScreen.hidden = true;
-}
-
-function stripTrailingSlash(p) {
-  return p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
-}
-
-function setActiveByPath(pathname) {
-  const norm = stripTrailingSlash(pathname);
-  let matched = null;
-  for (const btn of navButtons) {
-    const p = stripTrailingSlash(btn.getAttribute('data-path'));
-    if (norm === p || norm.startsWith(p + '/')) {
-      if (!matched || p.length > stripTrailingSlash(matched.getAttribute('data-path')).length) {
-        matched = btn;
-      }
-    }
-  }
-  navButtons.forEach((b) => b.classList.toggle('active', b === matched));
+  overlays.forEach((o) => {
+    o.hidden = true;
+  });
 }
 
 function navigateTo(pathname) {
@@ -57,56 +46,28 @@ function navigateTo(pathname) {
   view.src = buildUrl(pathname);
 }
 
-function navigateToAbsPath(absPath) {
-  hideOverlays();
-  showOverlay(loading);
-  view.src = new URL(absPath, serverUrl).href;
-}
-
-// --- Dynamic sidebar --------------------------------------------------------
-function buildNavButtons(apps) {
-  const key = apps.map((a) => a.id).join(',');
-  if (key === currentNavKey) return;
-  currentNavKey = key;
-
-  sidebarApps.innerHTML = '';
-  navButtons = [];
-
-  for (const app of apps) {
-    const btn = document.createElement('button');
-    btn.className = 'nav-btn';
-    btn.setAttribute('data-path', app.path);
-    btn.title = app.name;
-    btn.setAttribute('aria-label', app.name);
-
-    if (app.iconDataUri) {
-      const img = document.createElement('img');
-      img.className = 'nav-icon';
-      img.src = app.iconDataUri;
-      img.alt = '';
-      img.setAttribute('aria-hidden', 'true');
-      btn.appendChild(img);
-    } else {
-      const span = document.createElement('span');
-      span.className = 'nav-letter';
-      span.textContent = app.name.charAt(0).toUpperCase();
-      span.setAttribute('aria-hidden', 'true');
-      btn.appendChild(span);
-    }
-
-    btn.addEventListener('click', () => navigateToAbsPath(app.path));
-    sidebarApps.appendChild(btn);
-    navButtons.push(btn);
+// --- Welcome / first-run setup ----------------------------------------------
+welcomeForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let url = welcomeUrl.value.trim();
+  if (!url) {
+    welcomeError.textContent = 'Please enter your Nextcloud server address.';
+    welcomeError.hidden = false;
+    return;
   }
-
-  try {
-    const url = view.getURL();
-    if (url) setActiveByPath(new URL(url).pathname);
-  } catch (_) {
-    /* webview might not have a URL yet */
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
   }
-}
+  welcomeError.hidden = true;
+  // Saving triggers a config:changed event from the main process, which kicks
+  // off navigation to the dashboard (and hides this overlay).
+  await window.api.saveConfig({
+    serverUrl: url,
+    allowSelfSigned: welcomeSelfSigned.checked,
+  });
+});
 
+// --- Wrapper controls -------------------------------------------------------
 document.getElementById('btn-reload').addEventListener('click', () => view.reload());
 document.getElementById('btn-settings').addEventListener('click', () => window.api.openSettings());
 document.getElementById('btn-error-settings').addEventListener('click', () => window.api.openSettings());
@@ -123,30 +84,14 @@ document.getElementById('btn-retry').addEventListener('click', () => {
 
 // --- Webview lifecycle ------------------------------------------------------
 view.addEventListener('did-start-loading', () => {
-  if (errorScreen.hidden) showOverlay(loading);
+  if (errorScreen.hidden && welcome.hidden) showOverlay(loading);
 });
 
-view.addEventListener('dom-ready', () => hideOverlays());
+view.addEventListener('dom-ready', () => {
+  if (welcome.hidden) hideOverlays();
+});
 view.addEventListener('did-stop-loading', () => {
-  if (errorScreen.hidden) hideOverlays();
-});
-
-view.addEventListener('did-navigate', (e) => {
-  try {
-    const u = new URL(e.url);
-    setActiveByPath(u.pathname);
-  } catch (_) {
-    /* ignore */
-  }
-});
-
-view.addEventListener('did-navigate-in-page', (e) => {
-  try {
-    const u = new URL(e.url);
-    setActiveByPath(u.pathname);
-  } catch (_) {
-    /* ignore */
-  }
+  if (errorScreen.hidden && welcome.hidden) hideOverlays();
 });
 
 view.addEventListener('did-fail-load', (e) => {
@@ -159,16 +104,11 @@ view.addEventListener('did-fail-load', (e) => {
   showOverlay(errorScreen);
 });
 
-// Messages from the webview preload (badge count + navigation entries).
+// Relay the unread badge from the injected webview preload to the main process.
 view.addEventListener('ipc-message', (e) => {
   if (e.channel === 'badge') {
     const count = Array.isArray(e.args) ? e.args[0] : 0;
     window.api.setBadge(count);
-  } else if (e.channel === 'nav-apps') {
-    const apps = Array.isArray(e.args) ? e.args[0] : null;
-    if (Array.isArray(apps) && apps.length > 0) {
-      buildNavButtons(apps);
-    }
   }
 });
 
@@ -178,10 +118,11 @@ window.api.onReload(() => view.reload());
 window.api.onConfigChanged((cfg) => {
   const changedHost = cfg.serverUrl !== serverUrl;
   serverUrl = cfg.serverUrl;
+  if (!cfg.isConfigured) {
+    showOverlay(welcome);
+    return;
+  }
   if (changedHost) {
-    currentNavKey = '';
-    sidebarApps.innerHTML = '';
-    navButtons = [];
     navigateTo(DEFAULT_PATH);
   } else {
     view.reload();
@@ -191,9 +132,11 @@ window.api.onConfigChanged((cfg) => {
 // --- Boot -------------------------------------------------------------------
 (async function boot() {
   showOverlay(loading);
+  let configured = false;
   try {
     const cfg = await window.api.getConfig();
     serverUrl = cfg.serverUrl;
+    configured = cfg.isConfigured;
     // Inject the badge-reporting preload into the page.
     if (cfg && window.api.webviewPreload) {
       view.setAttribute('preload', window.api.webviewPreload);
@@ -201,5 +144,10 @@ window.api.onConfigChanged((cfg) => {
   } catch (err) {
     console.error('Failed to load config:', err);
   }
-  navigateTo(DEFAULT_PATH);
+  // First run: greet the user with the setup screen instead of a blank webview.
+  if (configured) {
+    navigateTo(DEFAULT_PATH);
+  } else {
+    showOverlay(welcome);
+  }
 })();

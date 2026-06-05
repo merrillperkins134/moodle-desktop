@@ -86,6 +86,12 @@ function getConfig() {
     config.serverUrlFromEnv = true;
   }
   config.configFilePath = configPath();
+  // The app is "configured" once the user has set a real server URL (i.e. it's
+  // no longer the placeholder default). Drives the first-run welcome screen.
+  config.isConfigured =
+    typeof config.serverUrl === 'string' &&
+    config.serverUrl.length > 0 &&
+    config.serverUrl !== DEFAULT_CONFIG.serverUrl;
   return config;
 }
 

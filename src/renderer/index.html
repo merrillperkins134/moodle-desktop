@@ -11,11 +11,11 @@
   </head>
   <body>
     <div id="app">
-      <!-- Native quick-jump sidebar, rendered outside the webview -->
-      <nav id="sidebar" aria-label="Nextcloud sections">
-        <div class="sidebar-top" id="sidebar-apps">
-          <!-- Populated dynamically from the user's Nextcloud navigation -->
-        </div>
+      <!-- Slim control rail. App navigation is provided by Nextcloud's own
+           ribbon inside the webview, so the wrapper only keeps its own
+           reload / settings controls here. -->
+      <nav id="sidebar" aria-label="App controls">
+        <div class="sidebar-top"></div>
 
         <div class="sidebar-bottom">
           <button id="btn-reload" class="nav-btn" title="Reload" aria-label="Reload">
@@ -40,6 +40,35 @@
         <div id="loading" class="overlay" hidden>
           <div class="spinner"></div>
           <p>Loading your Nextcloud…</p>
+        </div>
+
+        <!-- First-run welcome / setup screen -->
+        <div id="welcome" class="overlay" hidden>
+          <div class="welcome-card">
+            <svg class="welcome-logo" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6.5 17a4.5 4.5 0 0 1-.42-8.98 5.5 5.5 0 0 1 10.66-1.2A4 4 0 0 1 17.5 17h-11z" />
+            </svg>
+            <h1>Welcome to Nextcloud Vector View</h1>
+            <p class="welcome-sub">
+              Connect to your self-hosted Nextcloud server to get started. Enter your
+              server's web address and we'll take you straight to the login page.
+            </p>
+            <form id="welcome-form" autocomplete="off">
+              <input
+                type="text"
+                id="welcome-url"
+                placeholder="https://cloud.example.com"
+                spellcheck="false"
+                autofocus
+              />
+              <label class="welcome-toggle">
+                <input type="checkbox" id="welcome-selfsigned" />
+                My server uses a self-signed certificate
+              </label>
+              <p class="welcome-error" id="welcome-error" hidden></p>
+              <button type="submit" class="btn primary welcome-btn">Connect</button>
+            </form>
+          </div>
         </div>
 
         <!-- Friendly error / retry screen -->

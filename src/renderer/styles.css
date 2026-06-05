@@ -76,44 +76,9 @@ body {
   stroke-linejoin: round;
 }
 
-.nav-btn .nav-icon {
-  width: 22px;
-  height: 22px;
-  filter: brightness(0) invert(0.78);
-  transition: filter 0.15s ease;
-}
-
-.nav-btn:hover .nav-icon,
-.nav-btn.active .nav-icon {
-  filter: brightness(0) invert(1);
-}
-
-.nav-btn .nav-letter {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1;
-}
-
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.06);
   color: var(--icon-active);
-}
-
-.nav-btn.active {
-  background: var(--accent-soft);
-  color: var(--icon-active);
-}
-
-.nav-btn.active::before {
-  content: "";
-  position: absolute;
-  left: -10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 22px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
 }
 
 /* --- Content / webview --- */
@@ -166,6 +131,83 @@ body {
 .overlay p {
   color: var(--muted);
   margin: 0;
+}
+
+/* --- Welcome / first-run setup --- */
+.welcome-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  padding: 32px;
+}
+
+.welcome-logo {
+  width: 64px;
+  height: 64px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 14px;
+}
+
+.welcome-card h1 {
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+
+.welcome-sub {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0 0 26px;
+}
+
+#welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+#welcome-url {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--sidebar-border);
+  background: #121419;
+  color: var(--text);
+  font-size: 15px;
+}
+
+#welcome-url:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.welcome-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.welcome-error {
+  color: #e5736f;
+  font-size: 13px;
+  margin: 0;
+}
+
+.welcome-error[hidden] {
+  display: none;
+}
+
+.welcome-btn {
+  margin-top: 6px;
+  padding: 12px;
+  font-size: 15px;
 }
 
 .error-card {
