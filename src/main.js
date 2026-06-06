@@ -15,6 +15,14 @@ const {
 
 const config = require('./config');
 
+// Keep our cookie/credential storage out of the system keyring. Chromium would
+// otherwise store its "Safe Storage" key in the same Secret Service collection
+// (gnome-keyring / libsecret) that the official Nextcloud sync client uses, so
+// launching this app could lock or clobber that keyring and log the user out of
+// their file-manager client. "basic" keeps our encrypted storage self-contained
+// and never touches the Secret Service. Must be set before app is ready.
+app.commandLine.appendSwitch('password-store', 'basic');
+
 // Persistent session partition: cookies, localStorage, service workers and
 // IndexedDB are all written to disk so the login survives restarts. The same
 // string is used on the <webview partition="..."> attribute in the renderer.
