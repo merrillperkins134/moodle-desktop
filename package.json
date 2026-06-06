@@ -38,7 +38,7 @@
         "deb",
         "AppImage"
       ],
-      "icon": "build/icon.png",
+      "icon": "build/icons",
       "category": "Network",
       "synopsis": "Native desktop wrapper for your self-hosted Nextcloud Hub",
       "description": "Use Files, Mail, Calendar, Talk, Contacts and the Dashboard of your self-hosted Nextcloud server in a dedicated desktop window with a quick-jump sidebar, system tray and native notifications.",
