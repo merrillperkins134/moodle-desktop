@@ -33,6 +33,7 @@
       "buildResources": "build"
     },
     "linux": {
+      "executableName": "nextcloud-vector-view",
       "target": [
         "deb",
         "AppImage"
@@ -48,7 +49,7 @@
         "Comment": "Access your self-hosted Nextcloud Hub",
         "Categories": "Network;Internet;Utility;",
         "Keywords": "nextcloud;cloud;files;mail;calendar;talk;contacts;vector;",
-        "StartupWMClass": "Nextcloud Vector View"
+        "StartupWMClass": "Nextcloud-vector-view"
       }
     },
     "deb": {
